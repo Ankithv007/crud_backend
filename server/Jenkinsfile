@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    environment {
+        REMOTE_HOST = "ubuntu@3.7.252.14"
+    }
+    stages {
+        stage('Deploy Backend') {
+            steps {
+                sshagent(['deploy-key']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no $REMOTE_HOST <<'ENDSSH'
+                    echo "---- Deploying Backend ----"
+                    cd ~/crud_backend/server
+                    git pull origin main
+                    npm install
+                    pm2 restart crud-backend || pm2 start index.js --name crud-backend
+                    ENDSSH
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        success { echo "✅ Backend deployment successful" }
+        failure { echo "❌ Backend deployment failed" }
+    }
+}
+
