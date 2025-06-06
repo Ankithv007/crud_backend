@@ -1,18 +1,22 @@
 import express from 'express';
 import cors from 'cors';
 import mysql from 'mysql';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MySQL database connection
+// MySQL database connection using environment variables
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'crud',
-    dateStrings: 'date'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    dateStrings: process.env.DB_DATE_STRINGS === 'true'
 });
 
 db.connect((err) => {
@@ -85,6 +89,10 @@ app.delete('/delete/:id', (req, res) => {
     });
 });
 
-app.listen(5000, () => {
-    console.log("Server running on http://localhost:5000");
+// Use port 5000 for both local and production (can change if needed)
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
+
